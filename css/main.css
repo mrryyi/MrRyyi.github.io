@@ -1,10 +1,10 @@
 body {
 	
-	background-color: #F81894
+	background-color: #F81894;
 }
 
 a {
 	
-	size: 200px;
+	font-size: 200px;
 	color: lime;
 }
