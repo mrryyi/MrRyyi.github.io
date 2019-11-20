@@ -5,6 +5,7 @@
 .collapsible {
   background-color: #eee;
   color: #444;
+  margin-top: 2px;
   cursor: pointer;
   padding: 18px;
   width: 100%;
@@ -51,6 +52,77 @@ static double distanceInMetersBetweenEarthCoordinates(double lat1, double lon1, 
 
   return earthRadius * c;
 
+}
+</code>
+</pre>
+
+<button type="button" class="collapsible">decode_latitude_longitude</button>
+<pre class = "content">
+<code>
+static void decode_latitude_longitude(uint8_t * decoded_lat, uint8_t * decoded_long, uint8_t * encoded) {
+    
+  uint8_t d_i_lat = 0;
+  uint8_t d_i_long = 0;
+  uint8_t encoded_max = 14;
+  uint8_t encoded_i = 0;
+  char current_enc;
+    
+  uint8_t d_i_lat_max = 10;
+  uint8_t d_i_long_max = 11;
+  
+  while ((d_i_lat < d_i_lat_max) && encoded_i < encoded_max) {
+      
+      current_enc = encoded[encoded_i];
+      
+      if (d_i_lat == 4) {
+        decoded_lat[d_i_lat] = '.';
+        d_i_lat++;
+      }
+  
+      if (current_enc < 100) {
+        if (current_enc > 10) {
+          decoded_lat[d_i_lat] = 48 + current_enc / 10;
+          d_i_lat++;
+          decoded_lat[d_i_lat] = 48 + current_enc % 10;
+          d_i_lat++;
+        } else if (current_enc < 10) {
+          decoded_lat[d_i_lat] = current_enc + 48;
+          d_i_lat++;
+        } else if (current_enc == 0) {
+          decoded_lat[d_i_lat] = 48;
+          d_i_lat++;
+        }
+      }
+      
+      ++encoded_i;
+  }
+  
+  while ((d_i_long < d_i_long_max)  && encoded_i < encoded_max) {
+      
+      current_enc = encoded[encoded_i];
+      
+      if (d_i_long == 5) {
+        decoded_long[d_i_long] = '.';
+        d_i_long++;
+      }
+  
+      if (current_enc < 100) {
+        if (current_enc > 10) {
+          decoded_long[d_i_long] = 48 + current_enc / 10;
+          d_i_long++;
+          decoded_long[d_i_long] = 48 + current_enc % 10;
+          d_i_long++;
+        } else if (current_enc < 10) {
+          decoded_long[d_i_long] = current_enc + 48;
+          d_i_long++;
+        } else if (current_enc == 0) {
+          decoded_long[d_i_long] = 48;
+          d_i_long++;
+        }
+      }
+      
+      ++encoded_i;
+  }
 }
 </code>
 </pre>
