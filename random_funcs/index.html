@@ -59,45 +59,78 @@ static double distanceInMetersBetweenEarthCoordinates(double lat1, double lon1, 
 <button type="button" class="collapsible">decode_latitude_longitude</button>
 <pre class = "content">
 <code>
+#define DECODED_LATITUDE_MAX_I  10  /**<Maximum amount of decoded latitude characters.>*/
+#define DECODED_LONGITUDE_MAX_I 11  /**<Maximum amount of decoded longitude characters.>*/
+
 static void decode_latitude_longitude(uint8_t * decoded_lat, uint8_t * decoded_long, uint8_t * encoded) {
-    
+  
+  /**/
   uint8_t d_i_lat = 0;
   uint8_t d_i_long = 0;
-  uint8_t encoded_max = 14;
   uint8_t encoded_i = 0;
-  char current_enc;
-    
-  uint8_t d_i_lat_max = 10;
-  uint8_t d_i_long_max = 11;
+  uint8_t current_enc;
+  uint8_t temp_1;
+  uint8_t temp_2;
   
-  while ((d_i_lat < d_i_lat_max) && encoded_i < encoded_max) {
+  while (encoded_i < ENCODED_GPS_MAX) {
       
       current_enc = encoded[encoded_i];
-      
-      if (d_i_lat == 4) {
-        decoded_lat[d_i_lat] = '.';
-        d_i_lat++;
+        
+     if (current_enc >= 200) {
+        temp_1 = 48;
+        temp_2 = (current_enc - 200) + 48;
       }
-  
-      if (current_enc < 100) {
-        if (current_enc > 10) {
-          decoded_lat[d_i_lat] = 48 + current_enc / 10;
+      else if (current_enc < 10) {
+        temp_1 = current_enc + 48;
+        temp_2 = 0;
+      }
+      else if (current_enc < 100) {
+        temp_1 = 48 + current_enc / 10;
+        temp_2 = 48 + current_enc % 10;
+      }
+     
+      if (d_i_lat < DECODED_LATITUDE_MAX_I) {
+          decoded_lat[d_i_lat] = temp_1;
           d_i_lat++;
-          decoded_lat[d_i_lat] = 48 + current_enc % 10;
+          
+          if (d_i_lat == 4) {
+            decoded_lat[d_i_lat] = '.';
+            d_i_lat++;
+          }
+      }
+      else if (d_i_long < DECODED_LONGITUDE_MAX_I) {
+          decoded_long[d_i_long] = temp_1;
+          d_i_long++;
+          
+          if (d_i_long == 5) {
+            decoded_long[d_i_long] = '.';
+            d_i_long++;
+          }
+      }
+      
+      if ((d_i_lat < DECODED_LATITUDE_MAX_I) && (temp_2 != 0)) {
+          decoded_lat[d_i_lat] = temp_2;
           d_i_lat++;
-        } else if (current_enc < 10) {
-          decoded_lat[d_i_lat] = current_enc + 48;
-          d_i_lat++;
-        } else if (current_enc == 0) {
-          decoded_lat[d_i_lat] = 48;
-          d_i_lat++;
-        }
+          
+          if (d_i_lat == 4) {
+            decoded_lat[d_i_lat] = '.';
+            d_i_lat++;
+          }
+      }
+      else if ((d_i_long < DECODED_LONGITUDE_MAX_I) && (temp_2 != 0)) {
+          decoded_long[d_i_long] = temp_2;
+          d_i_long++;
+          
+          if (d_i_long == 5) {
+            decoded_long[d_i_long] = '.';
+            d_i_long++;
+          }
       }
       
       ++encoded_i;
   }
   
-  while ((d_i_long < d_i_long_max)  && encoded_i < encoded_max) {
+  while ((d_i_long < DECODED_LONGITUDE_MAX_I)  && encoded_i < ENCODED_GPS_MAX) {
       
       current_enc = encoded[encoded_i];
       
@@ -115,32 +148,11 @@ static void decode_latitude_longitude(uint8_t * decoded_lat, uint8_t * decoded_l
         } else if (current_enc < 10) {
           decoded_long[d_i_long] = current_enc + 48;
           d_i_long++;
-        } else if (current_enc == 0) {
-          decoded_long[d_i_long] = 48;
-          d_i_long++;
         }
       }
       
       ++encoded_i;
   }
-}
-</code>
-</pre>
-
-<script>
-var coll = document.getElementsByClassName("collapsible");
-var i;
-
-for (i = 0; i < coll.length; i++) {
-  coll[i].addEventListener("click", function() {
-    this.classList.toggle("active");
-    var content = this.nextElementSibling;
-    if (content.style.display === "block") {
-      content.style.display = "none";
-    } else {
-      content.style.display = "block";
-    }
-  });
 }
 </script>
 
